@@ -1,5 +1,7 @@
 # Garak's Shop Shower
 
+日本語版: [README.ja.md](README.ja.md)
+
 A shower gimmick for VRChat worlds, written in UdonSharp.
 
 - Grab the shower head (VRC Pickup) and take it off the holder
@@ -14,7 +16,7 @@ A shower gimmick for VRChat worlds, written in UdonSharp.
 
 ## Installation
 
-> **Not published yet.** The VPM listing below is planned and does not serve this package yet.
+> Published on the Garak's Shop VPM listing. Add the listing in VCC as below, then add the package to your project.
 
 1. Open VRChat Creator Companion (VCC).
 2. Add the repository listing: `https://hyde4280.github.io/garakshop-vpm/index.json`
@@ -32,10 +34,13 @@ jp.garakshop.shower/
     GarakShop.Shower.asmdef   Assembly definition for the scripts
     GarakShop.Shower.asset    UdonSharp assembly definition
     Scripts/                  UdonSharp scripts
+    Meshes/                   Meshes
+    Materials/                Materials
+    Prefabs/                  Prefabs (ShowerKit)
     Audio/                    Sound clips
+  Samples~/                   Shower Sample (import it from the Package Manager Samples section)
+  Tools~/                     Generator tools (editor-only)
 ```
-
-Meshes, materials and the prefab are added as the package is filled in.
 
 ## Usage
 
