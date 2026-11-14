@@ -37,6 +37,10 @@ jp.garakshop.shower/
 
 Meshes, materials and the prefab are added as the package is filled in.
 
+## Usage
+
+All scripts are in the `GarakShop.Shower` namespace. A script of your own that uses or extends them (for example a subclass of `ShowerRippleReceiver`) needs `using GarakShop.Shower;`, and its assembly must reference `GarakShop.Shower`.
+
 ## License
 
 MIT License. See [LICENSE](LICENSE).

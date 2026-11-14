@@ -5,8 +5,8 @@ using UnityEngine;
 //
 // Lives on the ShowerSound child of the head (in this world
 // Residence_8F/801_Shower/ShowerHeadPickup/ShowerHead/ShowerSound) next to a looping AudioSource
-// (clip Assets/VRCWorld/Audio/ShowerLoop.wav, a synthesized sound, see
-// BlenderSource/scripts/make_shower_loop_sound.py). It is a child of the head, so the sound travels
+// (clip Runtime/Audio/ShowerLoop.wav of this package, a synthesized sound, see
+// Tools~/make_shower_loop_sound.py). It is a child of the head, so the sound travels
 // with the hand-held head.
 //
 // ---- WHEN IT PLAYS ----

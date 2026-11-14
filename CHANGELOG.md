@@ -10,3 +10,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Package skeleton: `package.json`, README, LICENSE, and the runtime assembly definitions.
+- Shower scripts, meshes, materials, sound and prefab, and the generator tools (`Tools~/`).
+- The scripts are in the `GarakShop.Shower` namespace; use `using GarakShop.Shower;` to extend them (for example `ShowerRippleReceiver`).
