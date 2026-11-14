@@ -28,113 +28,116 @@ using VRC.Udon.Common.Interfaces;
 // The hand-held shower head (ShowerHeadPickup, added 2026-10-20) toggles the SAME synced bool:
 // its "use" button calls _RequestToggle(), which is exactly what Interact() does. There is one
 // state and one writer; the switch and the head are two buttons for it.
-[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-public class ShowerController : UdonSharpBehaviour
+namespace GarakShop.Shower
 {
-    [Tooltip("Water stream particles (Play On Awake OFF).")]
-    public ParticleSystem waterParticles;
-
-    [Tooltip("GameObject holding the VRCContactSender(s) of the water stream. Active only while the shower is ON.")]
-    public GameObject contactSenderRoot;
-
-    [Tooltip("Water sound (ShowerSound on the head). Told to re-check after every Play/Stop; optional.")]
-    public ShowerSound showerSound;
-
-    public string onPrompt = "シャワーを出す";
-    public string offPrompt = "シャワーを止める";
-
-    [Tooltip("Enables [SHOWER] console logging. Turn OFF before uploading.")]
-    public bool debugLog = false;
-
-    // ---- Synced state. WRITTEN ONLY BY THE OWNER, in ApplyToggle(). ----
-    [UdonSynced] private bool isOn;
-
-    private bool hasApplied = false;
-    private bool appliedIsOn;
-
-    private const float SEND_DEBOUNCE_SECONDS = 0.25f;
-    private float lastSendTime = -999f;
-
-    void Start()
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
+    public class ShowerController : UdonSharpBehaviour
     {
-        ApplyState();
-    }
+        [Tooltip("Water stream particles (Play On Awake OFF).")]
+        public ParticleSystem waterParticles;
 
-    public override void Interact()
-    {
-        _RequestToggle();
-    }
+        [Tooltip("GameObject holding the VRCContactSender(s) of the water stream. Active only while the shower is ON.")]
+        public GameObject contactSenderRoot;
 
-    // Local entry point shared by the switch (Interact) and the shower head's use button
-    // (ShowerHeadPickup.OnPickupUseDown). The leading underscore keeps it off the network surface.
-    public void _RequestToggle()
-    {
-        if (Networking.IsOwner(gameObject))
+        [Tooltip("Water sound (ShowerSound on the head). Told to re-check after every Play/Stop; optional.")]
+        public ShowerSound showerSound;
+
+        public string onPrompt = "シャワーを出す";
+        public string offPrompt = "シャワーを止める";
+
+        [Tooltip("Enables [SHOWER] console logging. Turn OFF before uploading.")]
+        public bool debugLog = false;
+
+        // ---- Synced state. WRITTEN ONLY BY THE OWNER, in ApplyToggle(). ----
+        [UdonSynced] private bool isOn;
+
+        private bool hasApplied = false;
+        private bool appliedIsOn;
+
+        private const float SEND_DEBOUNCE_SECONDS = 0.25f;
+        private float lastSendTime = -999f;
+
+        void Start()
         {
-            if (debugLog) Debug.Log("[SHOWER] " + name + " toggle request (owner) -> " + (!isOn ? "ON" : "OFF") + " frame=" + Time.frameCount);
+            ApplyState();
+        }
+
+        public override void Interact()
+        {
+            _RequestToggle();
+        }
+
+        // Local entry point shared by the switch (Interact) and the shower head's use button
+        // (ShowerHeadPickup.OnPickupUseDown). The leading underscore keeps it off the network surface.
+        public void _RequestToggle()
+        {
+            if (Networking.IsOwner(gameObject))
+            {
+                if (debugLog) Debug.Log("[SHOWER] " + name + " toggle request (owner) -> " + (!isOn ? "ON" : "OFF") + " frame=" + Time.frameCount);
+                ApplyToggle();
+                return;
+            }
+
+            // Non-owner: ASK, never write. The water changes only when the owner's packet arrives.
+            if (Time.time - lastSendTime < SEND_DEBOUNCE_SECONDS) return;
+            lastSendTime = Time.time;
+            if (debugLog) Debug.Log("[SHOWER] " + name + " toggle request (non-owner) -> _NetToggle to " + OwnerName() + " frame=" + Time.frameCount);
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(_NetToggle));
+        }
+
+        // Network-event receiver (owner only). Re-validates InNetworkCall, the caller, and
+        // ownership at ARRIVAL time; a request that lands on a non-owner is dropped.
+        [NetworkCallable(10)]
+        public void _NetToggle()
+        {
+            if (!NetworkCalling.InNetworkCall) return;
+            var caller = NetworkCalling.CallingPlayer;
+            if (caller == null || !caller.IsValid()) return;
+            if (!Networking.IsOwner(gameObject)) return;
+
+            if (debugLog) Debug.Log("[SHOWER] " + name + " [owner] _NetToggle from " + caller.displayName + " -> " + (!isOn ? "ON" : "OFF") + " frame=" + Time.frameCount);
             ApplyToggle();
-            return;
         }
 
-        // Non-owner: ASK, never write. The water changes only when the owner's packet arrives.
-        if (Time.time - lastSendTime < SEND_DEBOUNCE_SECONDS) return;
-        lastSendTime = Time.time;
-        if (debugLog) Debug.Log("[SHOWER] " + name + " toggle request (non-owner) -> _NetToggle to " + OwnerName() + " frame=" + Time.frameCount);
-        SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(_NetToggle));
-    }
-
-    // Network-event receiver (owner only). Re-validates InNetworkCall, the caller, and
-    // ownership at ARRIVAL time; a request that lands on a non-owner is dropped.
-    [NetworkCallable(10)]
-    public void _NetToggle()
-    {
-        if (!NetworkCalling.InNetworkCall) return;
-        var caller = NetworkCalling.CallingPlayer;
-        if (caller == null || !caller.IsValid()) return;
-        if (!Networking.IsOwner(gameObject)) return;
-
-        if (debugLog) Debug.Log("[SHOWER] " + name + " [owner] _NetToggle from " + caller.displayName + " -> " + (!isOn ? "ON" : "OFF") + " frame=" + Time.frameCount);
-        ApplyToggle();
-    }
-
-    // OWNER ONLY - both callers check IsOwner first.
-    private void ApplyToggle()
-    {
-        isOn = !isOn;
-        RequestSerialization();
-        // OnDeserialization never fires on the sender, so the owner applies its own state here.
-        ApplyState();
-    }
-
-    public override void OnDeserialization()
-    {
-        if (debugLog) Debug.Log("[SHOWER] " + name + " OnDeserialization isOn=" + isOn + " frame=" + Time.frameCount + " owner=" + OwnerName());
-        ApplyState();
-    }
-
-    // Idempotent: re-applying the same state does not restart the particles.
-    private void ApplyState()
-    {
-        if (contactSenderRoot != null) contactSenderRoot.SetActive(isOn);
-
-        if (waterParticles != null && (!hasApplied || appliedIsOn != isOn))
+        // OWNER ONLY - both callers check IsOwner first.
+        private void ApplyToggle()
         {
-            if (isOn) waterParticles.Play();
-            else waterParticles.Stop();   // stop emitting; drops in the air finish falling
+            isOn = !isOn;
+            RequestSerialization();
+            // OnDeserialization never fires on the sender, so the owner applies its own state here.
+            ApplyState();
         }
-        hasApplied = true;
-        appliedIsOn = isOn;
 
-        // The water sound follows the particles (emitting + emission enabled); see ShowerSound.
-        if (showerSound != null) showerSound._Refresh();
+        public override void OnDeserialization()
+        {
+            if (debugLog) Debug.Log("[SHOWER] " + name + " OnDeserialization isOn=" + isOn + " frame=" + Time.frameCount + " owner=" + OwnerName());
+            ApplyState();
+        }
 
-        // InteractionText is runtime-only (not serialized), so it must be assigned from code.
-        InteractionText = isOn ? offPrompt : onPrompt;
-    }
+        // Idempotent: re-applying the same state does not restart the particles.
+        private void ApplyState()
+        {
+            if (contactSenderRoot != null) contactSenderRoot.SetActive(isOn);
 
-    private string OwnerName()
-    {
-        var o = Networking.GetOwner(gameObject);
-        return (o == null) ? "?" : o.displayName;
+            if (waterParticles != null && (!hasApplied || appliedIsOn != isOn))
+            {
+                if (isOn) waterParticles.Play();
+                else waterParticles.Stop();   // stop emitting; drops in the air finish falling
+            }
+            hasApplied = true;
+            appliedIsOn = isOn;
+
+            // The water sound follows the particles (emitting + emission enabled); see ShowerSound.
+            if (showerSound != null) showerSound._Refresh();
+
+            // InteractionText is runtime-only (not serialized), so it must be assigned from code.
+            InteractionText = isOn ? offPrompt : onPrompt;
+        }
+
+        private string OwnerName()
+        {
+            var o = Networking.GetOwner(gameObject);
+            return (o == null) ? "?" : o.displayName;
+        }
     }
 }

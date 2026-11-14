@@ -23,61 +23,64 @@ using UnityEngine;
 //
 // _Refresh starts with an underscore so it is not on the network surface (a public parameterless
 // method without one could be called by any client via SendCustomNetworkEvent).
-[UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-public class ShowerSound : UdonSharpBehaviour
+namespace GarakShop.Shower
 {
-    [Tooltip("Looping AudioSource (Loop on, Play On Awake off). Volume is driven from here.")]
-    public AudioSource source;
-
-    [Tooltip("The shower water particles. The sound plays while they emit with emission enabled.")]
-    public ParticleSystem waterParticles;
-
-    [Tooltip("Volume at full level (AudioSource volume while the water runs).")]
-    [Range(0f, 1f)]
-    public float maxVolume = 0.45f;
-
-    [Tooltip("Seconds for the fade in / out (avoids clicks when starting / stopping).")]
-    public float fadeSeconds = 0.15f;
-
-    [Tooltip("Enables [SHOWERSOUND] console logging. Turn OFF before uploading.")]
-    public bool debugLog = false;
-
-    // 0..1 fade position, the target it moves to.
-    private float level = 0f;
-    private float target = 0f;
-
-    // Called by ShowerController (after Play/Stop) and ShowerHose (after the emission switch).
-    // Cheap and idempotent.
-    public void _Refresh()
+    [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
+    public class ShowerSound : UdonSharpBehaviour
     {
-        if (source == null) return;
-        bool wet = waterParticles != null && waterParticles.isEmitting && waterParticles.emission.enabled;
-        float t = wet ? 1f : 0f;
-        if (t == target && enabled == false) return;
-        target = t;
+        [Tooltip("Looping AudioSource (Loop on, Play On Awake off). Volume is driven from here.")]
+        public AudioSource source;
 
-        if (target > 0.5f && !source.isPlaying)
+        [Tooltip("The shower water particles. The sound plays while they emit with emission enabled.")]
+        public ParticleSystem waterParticles;
+
+        [Tooltip("Volume at full level (AudioSource volume while the water runs).")]
+        [Range(0f, 1f)]
+        public float maxVolume = 0.45f;
+
+        [Tooltip("Seconds for the fade in / out (avoids clicks when starting / stopping).")]
+        public float fadeSeconds = 0.15f;
+
+        [Tooltip("Enables [SHOWERSOUND] console logging. Turn OFF before uploading.")]
+        public bool debugLog = false;
+
+        // 0..1 fade position, the target it moves to.
+        private float level = 0f;
+        private float target = 0f;
+
+        // Called by ShowerController (after Play/Stop) and ShowerHose (after the emission switch).
+        // Cheap and idempotent.
+        public void _Refresh()
         {
-            source.volume = level * maxVolume;
-            source.Play();
+            if (source == null) return;
+            bool wet = waterParticles != null && waterParticles.isEmitting && waterParticles.emission.enabled;
+            float t = wet ? 1f : 0f;
+            if (t == target && enabled == false) return;
+            target = t;
+
+            if (target > 0.5f && !source.isPlaying)
+            {
+                source.volume = level * maxVolume;
+                source.Play();
+            }
+            if (debugLog) Debug.Log("[SHOWERSOUND] " + (wet ? "start" : "stop") + " level=" + level + " frame=" + Time.frameCount);
+            enabled = true;   // run Update for the fade
         }
-        if (debugLog) Debug.Log("[SHOWERSOUND] " + (wet ? "start" : "stop") + " level=" + level + " frame=" + Time.frameCount);
-        enabled = true;   // run Update for the fade
-    }
 
-    public void Update()
-    {
-        if (source == null) { enabled = false; return; }
-
-        float step = fadeSeconds > 0.001f ? Time.deltaTime / fadeSeconds : 1f;
-        if (level < target) level = Mathf.Min(level + step, target);
-        else if (level > target) level = Mathf.Max(level - step, target);
-        source.volume = level * maxVolume;
-
-        if (level == target)
+        public void Update()
         {
-            if (target == 0f && source.isPlaying) source.Stop();
-            enabled = false;
+            if (source == null) { enabled = false; return; }
+
+            float step = fadeSeconds > 0.001f ? Time.deltaTime / fadeSeconds : 1f;
+            if (level < target) level = Mathf.Min(level + step, target);
+            else if (level > target) level = Mathf.Max(level - step, target);
+            source.volume = level * maxVolume;
+
+            if (level == target)
+            {
+                if (target == 0f && source.isPlaying) source.Stop();
+                enabled = false;
+            }
         }
     }
 }

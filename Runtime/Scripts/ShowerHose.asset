@@ -20,7 +20,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 2
   hasInteractEvent: 0
-  scriptID: -1480901106351717580
+  scriptID: 8411831184495048783
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -306,7 +306,7 @@ MonoBehaviour:
       Data: 17|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: ShowerHeadPickup, GarakShop.Shower
+      Data: GarakShop.Shower.ShowerHeadPickup, GarakShop.Shower
     - Name: 
       Entry: 8
       Data: 
@@ -538,7 +538,7 @@ MonoBehaviour:
       Data: 31|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: ShowerSound, GarakShop.Shower
+      Data: GarakShop.Shower.ShowerSound, GarakShop.Shower
     - Name: 
       Entry: 8
       Data: 

@@ -20,7 +20,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 1
   hasInteractEvent: 0
-  scriptID: -7461736594418903436
+  scriptID: 4258262594064080195
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -1210,7 +1210,7 @@ MonoBehaviour:
       Data: 68|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: ShowerRippleReceiver, GarakShop.Shower
+      Data: GarakShop.Shower.ShowerRippleReceiver, GarakShop.Shower
     - Name: 
       Entry: 8
       Data: 

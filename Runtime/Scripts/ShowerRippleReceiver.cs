@@ -21,9 +21,12 @@ using UdonSharp;
 // ShowerSplash also treats the water as present only while this component's GameObject is active
 // in the hierarchy (e.g. the tub is filled); when inactive, the stream passes through the water plane.
 // The leading underscore keeps the methods off the network surface.
-public abstract class ShowerRippleReceiver : UdonSharpBehaviour
+namespace GarakShop.Shower
 {
-    public abstract void _SetShowerPoint(int i, float x, float z, float weight);
+    public abstract class ShowerRippleReceiver : UdonSharpBehaviour
+    {
+        public abstract void _SetShowerPoint(int i, float x, float z, float weight);
 
-    public abstract void _SetShowerCount(int n);
+        public abstract void _SetShowerCount(int n);
+    }
 }
