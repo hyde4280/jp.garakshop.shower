@@ -12,5 +12,12 @@
   "license": "MIT",
   "vpmDependencies": {
     "com.vrchat.worlds": "3.x.x >=3.10.5"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Shower Sample",
+      "description": "A small scene with a floor, a wall and one ShowerKit prefab, to try the shower on its own.",
+      "path": "Samples~/ShowerSample"
+    }
+  ]
 }
