@@ -1,0 +1,16 @@
+{
+  "name": "jp.garakshop.shower",
+  "displayName": "Garak's Shop Shower",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Shower gimmick for VRChat worlds (UdonSharp): grab the shower head, a hose that follows it, water splash and sound.",
+  "author": {
+    "name": "Garak's Shop",
+    "email": "8047078+hyde4280@users.noreply.github.com",
+    "url": "https://github.com/hyde4280"
+  },
+  "license": "MIT",
+  "vpmDependencies": {
+    "com.vrchat.worlds": "^3.10.5"
+  }
+}
