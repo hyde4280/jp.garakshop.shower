@@ -19,7 +19,7 @@ A shower gimmick for VRChat worlds, written in UdonSharp.
 > Published on the Garak's Shop VPM listing. Add the listing in VCC as below, then add the package to your project.
 
 1. Open VRChat Creator Companion (VCC).
-2. Add the repository listing: `https://hyde4280.github.io/garakshop-vpm/index.json`
+2. Add the repository listing: open <https://hyde4280.github.io/garakshop-vpm/> in a browser and press **Add to VCC**, or in the VCC use Settings > Packages > Add Repository and paste `https://hyde4280.github.io/garakshop-vpm/index.json`.
 3. Add **Garak's Shop Shower** to your world project.
 
 ## Contents
