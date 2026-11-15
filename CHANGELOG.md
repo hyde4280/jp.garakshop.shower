@@ -5,7 +5,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1]
+
+### Fixed
+
+- The water stream no longer looks like it starts behind the shower head: the water particle emitter is moved 0.03 m forward (the stretched streaks used to extend behind the plate).
+- README: installation steps and package contents now match the published package.
+
+## [0.1.0]
 
 ### Added
 
